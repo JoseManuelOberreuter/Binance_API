@@ -32,8 +32,9 @@ const chartApi = async () => {
                 limit = 100; // Un número lo suficientemente grande para obtener todos los datos disponibles
                 break;
             default:
-                interval = '1d';
-                limit = 30;
+                interval = '1M';
+                limit = 100; // Un número lo suficientemente grande para obtener todos los datos disponibles
+                break;
         }
 
         const endDate = new Date(); // Fecha de hoy
