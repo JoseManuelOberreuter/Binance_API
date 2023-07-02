@@ -1,9 +1,3 @@
-/* 
-QUE HACER: 
-- ARREGLAR FECHAS DEL CHART 
-
-*/
-
 // Obtiene el elemento del DOM con el id 'myChart'
 const ctx = document.getElementById('myChart');
 const selectElement = document.querySelector('#select_time');
@@ -18,30 +12,38 @@ const chartApi = async () => {
         const selectedOption = selectElement.value;
 
         let interval;
+        let limit;
 
         switch (selectedOption) {
             case 'This week':
-                interval = '1w';
-                limit = 7;
+                interval = '1d';
+                limit = 8;
                 break;
             case 'This month':
-                interval = '1M';
-                limit = 30;
+                interval = '1d';
+                limit = 31;
                 break;
             case 'This year':
                 interval = '1M';
-                limit = 12;
+                limit = 13; // Aproximadamente 52 semanas en un año
                 break;
             case 'All':
-                interval = '1y';
-                limit = 1000; // Un número lo suficientemente grande para obtener todos los datos disponibles
+                interval = '1M';
+                limit = 100; // Un número lo suficientemente grande para obtener todos los datos disponibles
                 break;
             default:
                 interval = '1d';
                 limit = 30;
         }
+
+        const endDate = new Date(); // Fecha de hoy
+        const startDate = new Date(endDate.getTime() - (limit - 1) * getMillisecondsForInterval(interval));
+
+        const startTime = startDate.getTime();
+        const endTime = endDate.getTime();
+
         // Realiza una solicitud a la API de Binance con el intervalo correspondiente
-        const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=30`);
+        const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&startTime=${startTime}&endTime=${endTime}`);
         // Convierte la respuesta en un objeto JSON
         const data = await response.json();
         // Crea un arreglo de etiquetas con las fechas formateadas como cadenas
@@ -78,6 +80,7 @@ const chartApi = async () => {
             },
             options: {
                 plugins: {
+                   
                     legend: {
                         display: true
                     },
@@ -108,3 +111,15 @@ selectElement.addEventListener('change', chartApi);
 
 // Llama a la función `chartApi` inicialmente para crear el gráfico
 chartApi();
+
+// Función auxiliar para obtener los milisegundos correspondientes a un intervalo
+function getMillisecondsForInterval(interval) {
+    const intervals = {
+        '1w': 7 * 24 * 60 * 60 * 1000, // 1 semana en milisegundos
+        '1M': 30 * 24 * 60 * 60 * 1000, // 1 mes en milisegundos
+        '1y': 365 * 24 * 60 * 60 * 1000, // 1 año en milisegundos
+        '1d': 24 * 60 * 60 * 1000 // 1 día en milisegundos
+    };
+
+    return intervals[interval];
+}
