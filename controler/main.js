@@ -6,15 +6,15 @@ const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Poly
 
 const links = [
   'index.html',
-  'view/ethereum.html',
-  'view/binance_coin.html',
-  'view/ripple.html',
-  'view/cardano.html',
-  'view/polygon.html',
-  'view/dogecoin.html',
-  'view/solana.html',
-  'view/litecoin.html',
-  'view/polkadot.html',
+  'ethereum.html',
+  'binance_coin.html',
+  'ripple.html',
+  'cardano.html',
+  'polygon.html',
+  'dogecoin.html',
+  'solana.html',
+  'litecoin.html',
+  'polkadot.html',
 ];
 
 // Define una función asíncrona para llamar a la API de Binance

@@ -5,8 +5,6 @@ const selectElement = document.querySelector('#select_time');
 // Define la variable para almacenar el gráfico
 let myChart;
 
-alert('hello')
-
 // Define una función asíncrona para llamar a la API de Binance y crear un gráfico
 const chartApi = async () => {
     try {
