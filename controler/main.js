@@ -5,16 +5,16 @@ const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'XRPUSDT', 'ADAUSDT', 'MATICUS
 const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Polygon', 'Dogecoin', 'Solana', 'Litecoin', 'Polkadot'];
 
 const links = [
-  'index.html',
-  'view/ethereum.html',
-  'view/binance_coin.html',
-  'view/ripple.html',
-  'view/cardano.html',
-  'view/polygon.html',
-  'view/dogecoin.html',
-  'view/solana.html',
-  'view/litecoin.html',
-  'view/polkadot.html',
+  '/index.html',
+  '/view/ethereum.html',
+  '/view/binance_coin.html',
+  '/view/ripple.html',
+  '/view/cardano.html',
+  '/view/polygon.html',
+  '/view/dogecoin.html',
+  '/view/solana.html',
+  '/view/litecoin.html',
+  '/view/polkadot.html',
 ];
 
 // Define una función asíncrona para llamar a la API de Binance
