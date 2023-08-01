@@ -12,7 +12,7 @@ const chartApi = async () => {
         const selectedOption = selectElement.value;
 
         let interval;
-        let limit;
+        let limit;  
 
         switch (selectedOption) {
             case 'This week':
