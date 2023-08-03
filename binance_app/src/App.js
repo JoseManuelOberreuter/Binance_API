@@ -1,8 +1,7 @@
-import './Components';
+// App.js
+import React from 'react';
 import { Header, Chart, Table } from './Components';
-import CryptoInfo  from './ApiBinance'
-
-
+import ApiTable  from './ApiBinance';
 
 function App() {
   return (
@@ -10,10 +9,7 @@ function App() {
       <Header />
       <Chart />
       <Table />
-
-      <CryptoInfo />
-      <Chart />
-
+      <ApiTable />
     </>
   );
 }

@@ -1,28 +1,50 @@
 
+import React, { useEffect, useRef } from 'react';
+import axios from 'axios'
+
+export function Chart() {
+
+
+    return (
+        <canvas className="my-4 w-100"  width="900px" height="380px"></canvas>
+    );
+}
+
+// Función auxiliar para obtener los milisegundos correspondientes a un intervalo
+function getMillisecondsForInterval(interval) {
+  const intervals = {
+    '1w': 7 * 24 * 60 * 60 * 1000, // 1 semana en milisegundos
+    '1M': 30 * 24 * 60 * 60 * 1000, // 1 mes en milisegundos
+    '1y': 365 * 24 * 60 * 60 * 1000, // 1 año en milisegundos
+    '1d': 24 * 60 * 60 * 1000, // 1 día en milisegundos
+  };
+
+  return intervals[interval];
+}
+
+// componente select 
+function SelectTime(){
+    return(
+        <select id="select_time" class="btn btn-bg btn-outline-secondary dropdown-toggle">
+            <option value="This week">This week</option>
+            <option value="This month">This month</option>
+            <option value="This year">This year</option>
+            <option value="All" selected>All time</option>
+        </select>
+    )
+}
+
 export function Header(){
     return(
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Bitcoin</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <select id="select_time" class="btn btn-bg btn-outline-secondary dropdown-toggle">
-                    <option value="This week">This week</option>
-                    <option value="This month">This month</option>
-                    <option value="This year">This year</option>
-                    <option value="All" selected>All time</option>
-                </select>
-
+                <SelectTime />
             </div>
         </div>
     )
 };
 
-export function Chart(){
-    return(
-        <>
-            <canvas class="my-4 w-100" id="myChart" width="900px" height="380px"></canvas>
-        </>
-    )
-};
 
 export function Table(){
     return(
@@ -41,7 +63,7 @@ export function Table(){
                     </thead>
                     <tbody>
                         <tr>
-                            <a href="index.html"><td class="cripto_name1"></td></a>
+                            <td class="cripto_name1"></td>
                             <td class="cripto_price1"></td>
                             <td class="cripto_vol1"></td>
                             <td class="cripto_high1"></td>
@@ -116,3 +138,4 @@ export function Table(){
         </>
     )
 };
+
