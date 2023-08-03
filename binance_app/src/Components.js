@@ -1,35 +1,69 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Chart from "chart.js/auto";
+import { format } from "date-fns";
 
 export function ChartComponent() {
-  const [bitcoinData, setBitcoinData] = useState({});
+  const [bitcoinData, setBitcoinData] = useState([]);
   const chartRef = useRef(null); // Ref para el canvas
 
-  useEffect(() => {
-    // Hacer la solicitud a la API de Binance para obtener los datos de Bitcoin
+  const handleSelectTimeChange = (selectedOption) => {
+    let interval = "1d";
+    let limit = 30;
+
+    if (selectedOption === "This week") {
+      interval = "1d";
+      limit = 7;
+    } else if (selectedOption === "This month") {
+      interval = "1d";
+      limit = 30;
+    } else if (selectedOption === "This year") {
+      interval = "1W";
+      limit = 52;
+    } else if (selectedOption === "All") {
+      interval = "1M";
+      limit = 100;
+    }
+
+    fetchBitcoinData(interval, limit);
+  };
+
+  const fetchBitcoinData = (interval, limit) => {
     axios
-      .get("https://api.binance.com/api/v3/ticker/price", {
+      .get("https://api.binance.com/api/v3/klines", {
         params: {
           symbol: "BTCUSDT", // BTCUSDT es el par de trading de Bitcoin en Binance
+          interval: interval,
+          limit: limit,
         },
       })
       .then((response) => {
-        setBitcoinData(response.data);
+        const historicalData = response.data.map((item) => ({
+          date: new Date(item[0]),
+          price: parseFloat(item[4]),
+        }));
+        setBitcoinData(historicalData);
       })
       .catch((error) => {
-        console.error("Error al obtener datos de Bitcoin desde la API:", error);
+        console.error("Error al obtener datos históricos de Bitcoin desde la API:", error);
       });
+  };
+
+  useEffect(() => {
+    // Por defecto, inicia con la opción "All time"
+    fetchBitcoinData("1M", 100);
   }, []);
 
   useEffect(() => {
-    // Crea el gráfico cuando los datos de Bitcoin estén disponibles
-    if (Object.keys(bitcoinData).length > 0 && chartRef.current) {
-      createChart(chartRef.current, bitcoinData.price); // Pasamos el precio de Bitcoin al crear el gráfico
+    // Crea el gráfico cuando los datos históricos de Bitcoin estén disponibles
+    if (bitcoinData.length > 0 && chartRef.current) {
+      createChart(chartRef.current, bitcoinData); // Pasamos los datos históricos al crear el gráfico
     }
   }, [bitcoinData]);
 
-  const createChart = (canvas, price) => {
+  const formatDate = (date) => format(date, "dd/MM/yy");
+
+  const createChart = (canvas, data) => {
     if (canvas && canvas.getContext) {
       if (window.myChart) {
         // Destruir el gráfico existente antes de crear uno nuevo
@@ -40,11 +74,11 @@ export function ChartComponent() {
       window.myChart = new Chart(ctx, {
         type: "line",
         data: {
-          labels: ["Precio"],
+          labels: data.map((item) => formatDate(item.date)),
           datasets: [
             {
               label: "Precio de Bitcoin",
-              data: [price],
+              data: data.map((item) => item.price),
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 2,
               fill: false,
@@ -56,22 +90,20 @@ export function ChartComponent() {
   };
 
   return (
+    
     <div>
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Bitcoin</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <SelectTime onChange={handleSelectTimeChange} />
+            </div>
+        </div>
       <canvas ref={chartRef} width="400" height="200"></canvas>
       <div>
-        <p>
-          <strong>Símbolo:</strong> {bitcoinData.symbol}
-        </p>
-        <p>
-          <strong>Precio:</strong> {bitcoinData.price}
-        </p>
-        {/* Agrega más datos aquí */}
-      </div>
+          </div>
     </div>
   );
 }
-
-
 
 
     
@@ -87,28 +119,31 @@ function getMillisecondsForInterval(interval) {
   return intervals[interval];
 }
 
-// componente select 
-function SelectTime(){
-    return(
-        <select id="select_time" class="btn btn-bg btn-outline-secondary dropdown-toggle">
-            <option value="This week">This week</option>
-            <option value="This month">This month</option>
-            <option value="This year">This year</option>
-            <option value="All" selected>All time</option>
-        </select>
-    )
-}
-
-export function Header(){
-    return(
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Bitcoin</h1>
-            <div class="btn-toolbar mb-2 mb-md-0">
-                <SelectTime />
-            </div>
-        </div>
-    )
-};
+export function SelectTime({ onChange }) {
+    const [selectedOption, setSelectedOption] = useState("All");
+  
+    const handleOptionChange = (event) => {
+      const selectedValue = event.target.value;
+      setSelectedOption(selectedValue);
+      onChange(selectedValue);
+    };
+  
+    return (
+      <select
+        id="select_time"
+        className="btn btn-bg btn-outline-secondary dropdown-toggle"
+        value={selectedOption}
+        onChange={handleOptionChange}
+      >
+        <option value="This week">This week</option>
+        <option value="This month">This month</option>
+        <option value="This year">This year</option>
+        <option value="All">All time</option>
+      </select>
+    );
+  }
+  
+  export default SelectTime;
 
 
 export function Table(){
