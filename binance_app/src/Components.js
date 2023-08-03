@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import Chart from "chart.js/auto";
 
-export function Chart() {
-  const [bitcoinData, setBitcoinData] = useState([]);
+export function ChartComponent() {
+  const [bitcoinData, setBitcoinData] = useState({});
+  const chartRef = useRef(null); // Ref para el canvas
 
   useEffect(() => {
     // Hacer la solicitud a la API de Binance para obtener los datos de Bitcoin
@@ -20,25 +22,51 @@ export function Chart() {
       });
   }, []);
 
+  useEffect(() => {
+    // Crea el gráfico cuando los datos de Bitcoin estén disponibles
+    if (Object.keys(bitcoinData).length > 0 && chartRef.current) {
+      createChart(chartRef.current, bitcoinData.price); // Pasamos el precio de Bitcoin al crear el gráfico
+    }
+  }, [bitcoinData]);
+
+  const createChart = (canvas, price) => {
+    if (canvas && canvas.getContext) {
+      if (window.myChart) {
+        // Destruir el gráfico existente antes de crear uno nuevo
+        window.myChart.destroy();
+      }
+
+      const ctx = canvas.getContext("2d");
+      window.myChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: ["Precio"],
+          datasets: [
+            {
+              label: "Precio de Bitcoin",
+              data: [price],
+              borderColor: "rgba(75, 192, 192, 1)",
+              borderWidth: 2,
+              fill: false,
+            },
+          ],
+        },
+      });
+    }
+  };
+
   return (
     <div>
-      <h2>Tabla de Datos de Bitcoin</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Simbolo</th>
-            <th>Precio</th>
-            {/* Agrega más encabezados de columna si deseas mostrar más información */}
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{bitcoinData.symbol}</td>
-            <td>{bitcoinData.price}</td>
-            {/* Agrega más celdas si deseas mostrar más información */}
-          </tr>
-        </tbody>
-      </table>
+      <canvas ref={chartRef} width="400" height="200"></canvas>
+      <div>
+        <p>
+          <strong>Símbolo:</strong> {bitcoinData.symbol}
+        </p>
+        <p>
+          <strong>Precio:</strong> {bitcoinData.price}
+        </p>
+        {/* Agrega más datos aquí */}
+      </div>
     </div>
   );
 }
@@ -46,7 +74,7 @@ export function Chart() {
 
 
 
-
+    
 // Función auxiliar para obtener los milisegundos correspondientes a un intervalo
 function getMillisecondsForInterval(interval) {
   const intervals = {
