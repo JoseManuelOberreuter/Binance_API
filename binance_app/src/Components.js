@@ -1,14 +1,51 @@
-
-import React, { useEffect, useRef } from 'react';
-import axios from 'axios'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 export function Chart() {
+  const [bitcoinData, setBitcoinData] = useState([]);
 
+  useEffect(() => {
+    // Hacer la solicitud a la API de Binance para obtener los datos de Bitcoin
+    axios
+      .get("https://api.binance.com/api/v3/ticker/price", {
+        params: {
+          symbol: "BTCUSDT", // BTCUSDT es el par de trading de Bitcoin en Binance
+        },
+      })
+      .then((response) => {
+        setBitcoinData(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener datos de Bitcoin desde la API:", error);
+      });
+  }, []);
 
-    return (
-        <canvas className="my-4 w-100"  width="900px" height="380px"></canvas>
-    );
+  return (
+    <div>
+      <h2>Tabla de Datos de Bitcoin</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Simbolo</th>
+            <th>Precio</th>
+            {/* Agrega más encabezados de columna si deseas mostrar más información */}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{bitcoinData.symbol}</td>
+            <td>{bitcoinData.price}</td>
+            {/* Agrega más celdas si deseas mostrar más información */}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
 }
+
+
+
+
 
 // Función auxiliar para obtener los milisegundos correspondientes a un intervalo
 function getMillisecondsForInterval(interval) {
