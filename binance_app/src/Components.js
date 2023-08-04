@@ -107,17 +107,7 @@ export function ChartComponent() {
 
 
     
-// Función auxiliar para obtener los milisegundos correspondientes a un intervalo
-function getMillisecondsForInterval(interval) {
-  const intervals = {
-    '1w': 7 * 24 * 60 * 60 * 1000, // 1 semana en milisegundos
-    '1M': 30 * 24 * 60 * 60 * 1000, // 1 mes en milisegundos
-    '1y': 365 * 24 * 60 * 60 * 1000, // 1 año en milisegundos
-    '1d': 24 * 60 * 60 * 1000, // 1 día en milisegundos
-  };
 
-  return intervals[interval];
-}
 
 export function SelectTime({ onChange }) {
     const [selectedOption, setSelectedOption] = useState("All");
