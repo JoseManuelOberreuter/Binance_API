@@ -16,10 +16,10 @@ export function ChartComponent() {
       limit = 7;
     } else if (selectedOption === "This month") {
       interval = "1d";
-      limit = 30;
+      limit = 32;
     } else if (selectedOption === "This year") {
-      interval = "1W";
-      limit = 52;
+        interval = "1M"; // Intervalo de 1 mes
+        limit = 13; // Limitar a 12 meses    
     } else if (selectedOption === "All") {
       interval = "1M";
       limit = 100;
@@ -90,17 +90,17 @@ export function ChartComponent() {
   };
 
   return (
-    
     <div>
-        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Bitcoin</h1>
-            <div class="btn-toolbar mb-2 mb-md-0">
-                <SelectTime onChange={handleSelectTimeChange} />
-            </div>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Bitcoin</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+
+            <SelectTime onChange={handleSelectTimeChange}/>
+        
+
         </div>
+      </div>
       <canvas ref={chartRef} width="400" height="200"></canvas>
-      <div>
-          </div>
     </div>
   );
 }
