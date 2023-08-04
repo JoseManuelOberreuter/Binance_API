@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Binance_API/static/css/main.64ca831c.css",
+    "main.js": "/Binance_API/static/js/main.143c1cf3.js",
+    "static/js/787.7c553e81.chunk.js": "/Binance_API/static/js/787.7c553e81.chunk.js",
+    "index.html": "/Binance_API/index.html",
+    "main.64ca831c.css.map": "/Binance_API/static/css/main.64ca831c.css.map",
+    "main.143c1cf3.js.map": "/Binance_API/static/js/main.143c1cf3.js.map",
+    "787.7c553e81.chunk.js.map": "/Binance_API/static/js/787.7c553e81.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.64ca831c.css",
+    "static/js/main.143c1cf3.js"
+  ]
+}
