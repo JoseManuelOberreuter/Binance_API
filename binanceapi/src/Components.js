@@ -107,7 +107,7 @@ export function ChartComponent() {
           labels: data.map((item) => formatDate(item.date)),
           datasets: [
             {
-              label: "Precio de Bitcoin",
+              label: "Price",
               data: data.map((item) => item.price),
               borderColor: "rgba(75, 192, 192, 1)",
               borderWidth: 2,
@@ -142,7 +142,7 @@ export function ChartComponent() {
 export function Table(){
     return(
         <>
-            <h2 class="mt-5">Cryptocurrencies</h2>
+            <h2 class="mt-5 mb-3">Cryptocurrencies</h2>
             <div class="table-responsive mb-5">
                 <table class="table table-striped table-sm">
                     <thead>
@@ -272,7 +272,6 @@ export const ApiTable = () => {
   }, []);
 
   // Functions for handling the click event for each cryptocurrency
-
 
   return (
     <div>
