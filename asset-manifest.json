@@ -1,16 +1,15 @@
 {
   "files": {
     "main.css": "/Binance_API/static/css/main.172e9e2b.css",
-    "main.js": "/Binance_API/static/js/main.e11a85bb.js",
+    "main.js": "/Binance_API/static/js/main.61aae49f.js",
     "static/js/787.6fb41720.chunk.js": "/Binance_API/static/js/787.6fb41720.chunk.js",
-    "static/media/logo.svg": "/Binance_API/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/Binance_API/index.html",
     "main.172e9e2b.css.map": "/Binance_API/static/css/main.172e9e2b.css.map",
-    "main.e11a85bb.js.map": "/Binance_API/static/js/main.e11a85bb.js.map",
+    "main.61aae49f.js.map": "/Binance_API/static/js/main.61aae49f.js.map",
     "787.6fb41720.chunk.js.map": "/Binance_API/static/js/787.6fb41720.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.172e9e2b.css",
-    "static/js/main.e11a85bb.js"
+    "static/js/main.61aae49f.js"
   ]
 }
