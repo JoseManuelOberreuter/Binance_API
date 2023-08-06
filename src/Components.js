@@ -132,15 +132,14 @@ export function ChartComponent() {
   return (
     <div>
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Bitcoin</h1>
+        <h1 class="h2">{currentCryptoName}</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <SelectTime onChange={handleSelectTimeChange} />
         </div>
       </div>
       <canvas ref={chartRef} width="400" height="200"></canvas>
       <Table />
-      <ApiTable onSelectCrypto={handleSelectCrypto} /> {/* Pasar handleSelectCrypto como prop */}
-
+      <ApiTable onSelectCrypto={handleSelectCrypto} setCurrentCryptoName={setCurrentCryptoName} />
     </div>
   );
 }
@@ -249,7 +248,7 @@ const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Poly
 
 
 
-export const ApiTable = ({ onSelectCrypto }) => {
+export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
   useEffect(() => {
     const binanceApi = async () => {
       try {
@@ -274,6 +273,7 @@ export const ApiTable = ({ onSelectCrypto }) => {
             const interval = "1M"; // Definir el intervalo aquí
             const limit = 100; // Definir el límite aquí
             onSelectCrypto(cryptoIndex, interval, limit); // Pasar las variables interval y limit
+            setCurrentCryptoName(names[cryptoIndex]); // Actualizar el título
           });
 
           document.querySelector(`.cripto_price${i + 1}`).textContent = parseFloat(data.lastPrice).toFixed(2);
