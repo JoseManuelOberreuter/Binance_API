@@ -3,8 +3,6 @@ import axios from "axios";
 import Chart from "chart.js/auto";
 import { format } from "date-fns";
 
-
-
 export function SelectTime({ onChange }) {
   const [selectedOption, setSelectedOption] = useState("All");
 
@@ -29,13 +27,10 @@ export function SelectTime({ onChange }) {
   );
 }
 
-
-
-
-
 export function ChartComponent() {
   const [bitcoinData, setBitcoinData] = useState([]);
-  const chartRef = useRef(null); // Ref para el canvas
+  const chartRef = useRef(null);
+  const [selectedCryptoIndex, setSelectedCryptoIndex] = useState(0);
 
   const handleSelectTimeChange = (selectedOption) => {
     let interval = "1d";
@@ -48,8 +43,8 @@ export function ChartComponent() {
       interval = "1d";
       limit = 32;
     } else if (selectedOption === "This year") {
-        interval = "1M"; // Intervalo de 1 mes
-        limit = 13; // Limitar a 12 meses    
+      interval = "1M";
+      limit = 13;
     } else if (selectedOption === "All") {
       interval = "1M";
       limit = 100;
@@ -58,11 +53,11 @@ export function ChartComponent() {
     fetchBitcoinData(interval, limit);
   };
 
-  const fetchBitcoinData = (interval, limit) => {
+  const fetchBitcoinData = (interval, limit, symbol = "BTCUSDT") => {
     axios
       .get("https://api.binance.com/api/v3/klines", {
         params: {
-          symbol: "BTCUSDT", // BTCUSDT es el par de trading de Bitcoin en Binance
+          symbol: symbol,
           interval: interval,
           limit: limit,
         },
@@ -75,31 +70,34 @@ export function ChartComponent() {
         setBitcoinData(historicalData);
       })
       .catch((error) => {
-        console.error("Error al obtener datos históricos de Bitcoin desde la API:", error);
+        console.error("Error fetching Bitcoin historical data from API:", error);
       });
   };
 
+  const updateChartWithCryptoData = (cryptoIndex) => {
+    const selectedSymbol = symbols[cryptoIndex];
+    const interval = "1M"; // Definir el intervalo aquí
+    const limit = 100; // Definir el límite aquí
+    fetchBitcoinData(interval, limit, selectedSymbol);
+  };
+
   useEffect(() => {
-    // Por defecto, inicia con la opción "All time"
     fetchBitcoinData("1M", 100);
   }, []);
 
   useEffect(() => {
-    // Crea el gráfico cuando los datos históricos de Bitcoin estén disponibles
     if (bitcoinData.length > 0 && chartRef.current) {
-      createChart(chartRef.current, bitcoinData); // Pasamos los datos históricos al crear el gráfico
+      createChart(chartRef.current, bitcoinData);
     }
-  }, [bitcoinData]);
+  }, [bitcoinData, selectedCryptoIndex]);
 
   const formatDate = (date) => format(date, "dd/MM/yy");
 
   const createChart = (canvas, data) => {
     if (canvas && canvas.getContext) {
       if (window.myChart) {
-        // Destruir el gráfico existente antes de crear uno nuevo
         window.myChart.destroy();
       }
-
       const ctx = canvas.getContext("2d");
       window.myChart = new Chart(ctx, {
         type: "line",
@@ -124,10 +122,7 @@ export function ChartComponent() {
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Bitcoin</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
-
-            <SelectTime onChange={handleSelectTimeChange}/>
-        
-
+          <SelectTime onChange={handleSelectTimeChange} />
         </div>
       </div>
       <canvas ref={chartRef} width="400" height="200"></canvas>
@@ -239,7 +234,7 @@ const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Poly
 
 
 
-export const ApiTable = () => {
+export const ApiTable = ({ onSelectCrypto }) => {
   useEffect(() => {
     const binanceApi = async () => {
       try {
@@ -258,6 +253,14 @@ export const ApiTable = () => {
           nameElement.innerHTML = '';
           nameElement.appendChild(buttonElement);
 
+          buttonElement.dataset.cryptoIndex = i;
+          buttonElement.addEventListener('click', (event) => {
+            const cryptoIndex = event.target.dataset.cryptoIndex;
+            const interval = "1M"; // Definir el intervalo aquí
+            const limit = 100; // Definir el límite aquí
+            onSelectCrypto(cryptoIndex, interval, limit); // Pasar las variables interval y limit
+          });
+
           document.querySelector(`.cripto_price${i + 1}`).textContent = parseFloat(data.lastPrice).toFixed(2);
           document.querySelector(`.cripto_vol${i + 1}`).textContent = parseFloat(data.volume).toFixed(2);
           document.querySelector(`.cripto_high${i + 1}`).textContent = parseFloat(data.highPrice).toFixed(2);
@@ -270,8 +273,6 @@ export const ApiTable = () => {
 
     binanceApi();
   }, []);
-
-  // Functions for handling the click event for each cryptocurrency
 
   return (
     <div>
@@ -287,5 +288,4 @@ export const ApiTable = () => {
       ))}
     </div>
   );
-};
-
+}
