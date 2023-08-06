@@ -117,6 +117,18 @@ export function ChartComponent() {
     }
   };
 
+
+  const [currentCryptoName, setCurrentCryptoName] = useState(names[selectedCryptoIndex]);
+
+
+  const handleSelectCrypto = (cryptoIndex, interval, limit) => {
+    updateChartWithCryptoData(cryptoIndex, interval, limit);
+    setCurrentCryptoName(names[cryptoIndex]);
+  };
+
+
+
+
   return (
     <div>
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -126,6 +138,9 @@ export function ChartComponent() {
         </div>
       </div>
       <canvas ref={chartRef} width="400" height="200"></canvas>
+      <Table />
+      <ApiTable onSelectCrypto={handleSelectCrypto} /> {/* Pasar handleSelectCrypto como prop */}
+
     </div>
   );
 }
