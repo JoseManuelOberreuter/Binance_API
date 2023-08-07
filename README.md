@@ -13,4 +13,4 @@ This app is designed with React js, Binance Api and Bootstrap to display informa
 In summary, this application combines React for the user interface, Chart.js for generating the historical price chart, and the Binance API for fetching real-time data about cryptocurrencies. The components work together to provide a user experience that allows users to visualize price history and obtain updated information about various cryptocurrencies.
 
 
-[LINK TO MY WEB APP] (https://josemanueloberreuter.github.io/Binance_API)
+(LINK TO MY WEB APP) [https://josemanueloberreuter.github.io/Binance_API]
