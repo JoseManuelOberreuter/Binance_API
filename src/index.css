@@ -12,3 +12,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.crypto-button {
+  border: none;
+  background: none;
+  color: blue;
+  transition: 0.5s;
+}
+
+
+
+.crypto-button:hover {
+
+  color: black;
+}

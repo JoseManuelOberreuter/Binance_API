@@ -31,11 +31,13 @@ export function ChartComponent() {
   const [bitcoinData, setBitcoinData] = useState([]);
   const chartRef = useRef(null);
   const [selectedCryptoIndex, setSelectedCryptoIndex] = useState(0);
+  const [selectedCryptoSymbol, setSelectedCryptoSymbol] = useState(symbols[selectedCryptoIndex]);
+
 
   const handleSelectTimeChange = (selectedOption) => {
     let interval = "1d";
     let limit = 30;
-
+  
     if (selectedOption === "This week") {
       interval = "1d";
       limit = 7;
@@ -49,9 +51,10 @@ export function ChartComponent() {
       interval = "1M";
       limit = 100;
     }
-
-    fetchBitcoinData(interval, limit);
+  
+    fetchBitcoinData(interval, limit, selectedCryptoSymbol);
   };
+  
 
   const fetchBitcoinData = (interval, limit, symbol = "BTCUSDT") => {
     axios
@@ -76,8 +79,8 @@ export function ChartComponent() {
 
   const updateChartWithCryptoData = (cryptoIndex) => {
     const selectedSymbol = symbols[cryptoIndex];
-    const interval = "1M"; // Definir el intervalo aquí
-    const limit = 100; // Definir el límite aquí
+    const interval = "1M"; 
+    const limit = 100; 
     fetchBitcoinData(interval, limit, selectedSymbol);
   };
 
@@ -123,8 +126,10 @@ export function ChartComponent() {
 
   const handleSelectCrypto = (cryptoIndex, interval, limit) => {
     updateChartWithCryptoData(cryptoIndex, interval, limit);
-    setCurrentCryptoName(names[cryptoIndex]);
+    setSelectedCryptoIndex(cryptoIndex);
+    setSelectedCryptoSymbol(symbols[cryptoIndex]);
   };
+  
 
 
 
@@ -144,8 +149,6 @@ export function ChartComponent() {
   );
 }
 
-
-  
 
 
 export function Table(){
@@ -245,7 +248,6 @@ export function Table(){
 
 const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'XRPUSDT', 'ADAUSDT', 'MATICUSDT', 'DOGEUSDT', 'SOLUSDT', 'LTCUSDT', 'DOTUSDT'];
 const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Polygon', 'Dogecoin', 'Solana', 'Litecoin', 'Polkadot'];
-
 
 
 export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
