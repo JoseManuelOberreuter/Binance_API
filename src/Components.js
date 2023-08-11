@@ -3,15 +3,24 @@ import axios from "axios";
 import Chart from "chart.js/auto";
 import { format } from "date-fns";
 
+
+// Definiendo del componente SelectTime
 export function SelectTime({ onChange }) {
+
+  // Declaración de un estado local usando el hook useState
   const [selectedOption, setSelectedOption] = useState("All");
 
+  // Función que maneja el cambio de opción en el selector
   const handleOptionChange = (event) => {
     const selectedValue = event.target.value;
     setSelectedOption(selectedValue);
+    
+    // Llamada a la función pasada como prop onChange con el valor seleccionado
     onChange(selectedValue);
   };
 
+
+  // Retorno del JSX
   return (
     <select
       id="select_time"
@@ -143,8 +152,8 @@ export function ChartComponent() {
         </div>
       </div>
       <canvas ref={chartRef} width="400" height="200"></canvas>
-      <Table />
-      <ApiTable onSelectCrypto={handleSelectCrypto} setCurrentCryptoName={setCurrentCryptoName} />
+        <Table />
+        <ApiTable onSelectCrypto={handleSelectCrypto} setCurrentCryptoName={setCurrentCryptoName} />
     </div>
   );
 }
