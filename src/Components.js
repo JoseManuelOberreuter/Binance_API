@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Chart from "chart.js/auto";
 import { format } from "date-fns";
+import { getKlines, getMultipleTickers } from "./services/binanceApi";
 
 
 // Definiendo del componente SelectTime
@@ -38,10 +39,11 @@ export function SelectTime({ onChange }) {
 
 export function ChartComponent() {
   const [bitcoinData, setBitcoinData] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const chartRef = useRef(null);
   const [selectedCryptoIndex, setSelectedCryptoIndex] = useState(0);
   const [selectedCryptoSymbol, setSelectedCryptoSymbol] = useState(symbols[selectedCryptoIndex]);
-
 
   const handleSelectTimeChange = (selectedOption) => {
     let interval = "1d";
@@ -65,25 +67,22 @@ export function ChartComponent() {
   };
   
 
-  const fetchBitcoinData = (interval, limit, symbol = "BTCUSDT") => {
-    axios
-      .get("https://api.binance.com/api/v3/klines", {
-        params: {
-          symbol: symbol,
-          interval: interval,
-          limit: limit,
-        },
-      })
-      .then((response) => {
-        const historicalData = response.data.map((item) => ({
-          date: new Date(item[0]),
-          price: parseFloat(item[4]),
-        }));
-        setBitcoinData(historicalData);
-      })
-      .catch((error) => {
-        console.error("Error fetching Bitcoin historical data from API:", error);
-      });
+  const fetchBitcoinData = async (interval, limit, symbol = "BTCUSDT") => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getKlines(symbol, interval, limit);
+      const historicalData = data.map((item) => ({
+        date: new Date(item[0]),
+        price: parseFloat(item[4]),
+      }));
+      setBitcoinData(historicalData);
+    } catch (error) {
+      setError(error.message);
+      console.error("Error fetching Bitcoin historical data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateChartWithCryptoData = (cryptoIndex) => {
@@ -145,19 +144,31 @@ export function ChartComponent() {
 
   return (
     <div>
-      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">{currentCryptoName}</h1>
-        <div class="btn-toolbar mb-2 mb-md-0">
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 className="h2">{currentCryptoName}</h1>
+        <div className="btn-toolbar mb-2 mb-md-0">
           <SelectTime onChange={handleSelectTimeChange} />
         </div>
       </div>
-      <canvas ref={chartRef} width="400" height="200"></canvas>
-        <Table />
-        <ApiTable onSelectCrypto={handleSelectCrypto} setCurrentCryptoName={setCurrentCryptoName} />
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+      {loading ? (
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : (
+        <canvas ref={chartRef} width="400" height="200"></canvas>
+      )}
+      <Table />
+      <ApiTable onSelectCrypto={handleSelectCrypto} setCurrentCryptoName={setCurrentCryptoName} />
     </div>
   );
 }
-
 
 
 export function Table(){
@@ -260,14 +271,17 @@ const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Poly
 
 
 export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
-  useEffect(() => {
-    const binanceApi = async () => {
-      try {
-        for (let i = 0; i < symbols.length; i++) {
-          const symbol = symbols[i];
-          const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
-          const data = await response.json();
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getMultipleTickers(symbols);
+        
+        data.forEach((item, i) => {
           const nameElement = document.querySelector(`.cripto_name${i + 1}`);
           nameElement.textContent = names[i];
 
@@ -281,27 +295,42 @@ export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
           buttonElement.dataset.cryptoIndex = i;
           buttonElement.addEventListener('click', (event) => {
             const cryptoIndex = event.target.dataset.cryptoIndex;
-            const interval = "1M"; // Definir el intervalo aquí
-            const limit = 100; // Definir el límite aquí
-            onSelectCrypto(cryptoIndex, interval, limit); // Pasar las variables interval y limit
-            setCurrentCryptoName(names[cryptoIndex]); // Actualizar el título
+            const interval = "1M";
+            const limit = 100;
+            onSelectCrypto(cryptoIndex, interval, limit);
+            setCurrentCryptoName(names[cryptoIndex]);
           });
 
-          document.querySelector(`.cripto_price${i + 1}`).textContent = parseFloat(data.lastPrice).toFixed(2);
-          document.querySelector(`.cripto_vol${i + 1}`).textContent = parseFloat(data.volume).toFixed(2);
-          document.querySelector(`.cripto_high${i + 1}`).textContent = parseFloat(data.highPrice).toFixed(2);
-          document.querySelector(`.cripto_low${i + 1}`).textContent = parseFloat(data.lowPrice).toFixed(2);
-        }
+          document.querySelector(`.cripto_price${i + 1}`).textContent = parseFloat(item.lastPrice).toFixed(2);
+          document.querySelector(`.cripto_vol${i + 1}`).textContent = parseFloat(item.volume).toFixed(2);
+          document.querySelector(`.cripto_high${i + 1}`).textContent = parseFloat(item.highPrice).toFixed(2);
+          document.querySelector(`.cripto_low${i + 1}`).textContent = parseFloat(item.lowPrice).toFixed(2);
+        });
       } catch (error) {
-        console.error(error);
+        setError(error.message);
+        console.error('Error fetching ticker data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    binanceApi();
+    fetchData();
   }, []);
 
   return (
     <div>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+      {loading && (
+        <div className="d-flex justify-content-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      )}
       {/* Render placeholders for the cryptocurrency data */}
       {symbols.map((symbol, i) => (
         <div key={i}>
@@ -314,4 +343,4 @@ export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
       ))}
     </div>
   );
-}
+};
