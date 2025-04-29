@@ -1,27 +1,19 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback, memo } from "react";
 import axios from "axios";
 import Chart from "chart.js/auto";
 import { format } from "date-fns";
 import { getKlines, getMultipleTickers } from "./services/binanceApi";
 
-
-// Definiendo del componente SelectTime
-export function SelectTime({ onChange }) {
-
-  // Declaración de un estado local usando el hook useState
+// Componente SelectTime optimizado con memo
+export const SelectTime = memo(({ onChange }) => {
   const [selectedOption, setSelectedOption] = useState("All");
 
-  // Función que maneja el cambio de opción en el selector
-  const handleOptionChange = (event) => {
+  const handleOptionChange = useCallback((event) => {
     const selectedValue = event.target.value;
     setSelectedOption(selectedValue);
-    
-    // Llamada a la función pasada como prop onChange con el valor seleccionado
     onChange(selectedValue);
-  };
+  }, [onChange]);
 
-
-  // Retorno del JSX
   return (
     <select
       id="select_time"
@@ -35,17 +27,20 @@ export function SelectTime({ onChange }) {
       <option value="All">All time</option>
     </select>
   );
-}
+});
 
-export function ChartComponent() {
+// Componente ChartComponent optimizado
+export const ChartComponent = memo(() => {
   const [bitcoinData, setBitcoinData] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const chartRef = useRef(null);
+  const chartInstance = useRef(null);
   const [selectedCryptoIndex, setSelectedCryptoIndex] = useState(0);
   const [selectedCryptoSymbol, setSelectedCryptoSymbol] = useState(symbols[selectedCryptoIndex]);
+  const [currentCryptoName, setCurrentCryptoName] = useState(names[selectedCryptoIndex]);
 
-  const handleSelectTimeChange = (selectedOption) => {
+  const handleSelectTimeChange = useCallback((selectedOption) => {
     let interval = "1d";
     let limit = 30;
   
@@ -64,10 +59,9 @@ export function ChartComponent() {
     }
   
     fetchBitcoinData(interval, limit, selectedCryptoSymbol);
-  };
-  
+  }, [selectedCryptoSymbol]);
 
-  const fetchBitcoinData = async (interval, limit, symbol = "BTCUSDT") => {
+  const fetchBitcoinData = useCallback(async (interval, limit, symbol = "BTCUSDT") => {
     setLoading(true);
     setError(null);
     try {
@@ -83,64 +77,84 @@ export function ChartComponent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const updateChartWithCryptoData = (cryptoIndex) => {
+  const updateChartWithCryptoData = useCallback((cryptoIndex) => {
     const selectedSymbol = symbols[cryptoIndex];
-    const interval = "1M"; 
-    const limit = 100; 
+    const interval = "1M";
+    const limit = 100;
     fetchBitcoinData(interval, limit, selectedSymbol);
-  };
+  }, [fetchBitcoinData]);
+
+  const handleSelectCrypto = useCallback((cryptoIndex) => {
+    updateChartWithCryptoData(cryptoIndex);
+    setSelectedCryptoIndex(cryptoIndex);
+    setSelectedCryptoSymbol(symbols[cryptoIndex]);
+    setCurrentCryptoName(names[cryptoIndex]);
+  }, [updateChartWithCryptoData]);
+
+  const formatDate = useCallback((date) => format(date, "dd/MM/yy"), []);
+
+  const createChart = useCallback((canvas, data) => {
+    if (!canvas || !canvas.getContext) return;
+
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+
+    const ctx = canvas.getContext("2d");
+    chartInstance.current = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.map((item) => formatDate(item.date)),
+        datasets: [
+          {
+            label: "Price",
+            data: data.map((item) => item.price),
+            borderColor: "rgba(75, 192, 192, 1)",
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 0
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            }
+          },
+          y: {
+            grid: {
+              color: 'rgba(0, 0, 0, 0.1)'
+            }
+          }
+        }
+      }
+    });
+  }, [formatDate]);
 
   useEffect(() => {
     fetchBitcoinData("1M", 100);
-  }, []);
+  }, [fetchBitcoinData]);
 
   useEffect(() => {
     if (bitcoinData.length > 0 && chartRef.current) {
       createChart(chartRef.current, bitcoinData);
     }
-  }, [bitcoinData, selectedCryptoIndex]);
-
-  const formatDate = (date) => format(date, "dd/MM/yy");
-
-  const createChart = (canvas, data) => {
-    if (canvas && canvas.getContext) {
-      if (window.myChart) {
-        window.myChart.destroy();
-      }
-      const ctx = canvas.getContext("2d");
-      window.myChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: data.map((item) => formatDate(item.date)),
-          datasets: [
-            {
-              label: "Price",
-              data: data.map((item) => item.price),
-              borderColor: "rgba(75, 192, 192, 1)",
-              borderWidth: 2,
-              fill: false,
-            },
-          ],
-        },
-      });
-    }
-  };
-
-
-  const [currentCryptoName, setCurrentCryptoName] = useState(names[selectedCryptoIndex]);
-
-
-  const handleSelectCrypto = (cryptoIndex, interval, limit) => {
-    updateChartWithCryptoData(cryptoIndex, interval, limit);
-    setSelectedCryptoIndex(cryptoIndex);
-    setSelectedCryptoSymbol(symbols[cryptoIndex]);
-  };
-  
-
-
-
+  }, [bitcoinData, createChart]);
 
   return (
     <div>
@@ -162,117 +176,82 @@ export function ChartComponent() {
           </div>
         </div>
       ) : (
-        <canvas ref={chartRef} width="400" height="200"></canvas>
+        <div style={{ height: '400px' }}>
+          <canvas ref={chartRef}></canvas>
+        </div>
       )}
       <Table />
       <ApiTable onSelectCrypto={handleSelectCrypto} setCurrentCryptoName={setCurrentCryptoName} />
     </div>
   );
-}
+});
 
-
-export function Table(){
-    return(
-        <>
-            <h2 class="mt-5 mb-3">Cryptocurrencies</h2>
-            <div class="table-responsive mb-5">
-                <table class="table table-striped table-sm">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Volume</th>
-                            <th scope="col">24hr high Price</th>
-                            <th scope="col">24hr low Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="cripto_name1"></td>
-                            <td class="cripto_price1"></td>
-                            <td class="cripto_vol1"></td>
-                            <td class="cripto_high1"></td>
-                            <td class="cripto_low1"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name2"></td>
-                            <td class="cripto_price2"></td>
-                            <td class="cripto_vol2"></td>
-                            <td class="cripto_high2"></td>
-                            <td class="cripto_low2"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name3"></td>
-                            <td class="cripto_price3"></td>
-                            <td class="cripto_vol3"></td>
-                            <td class="cripto_high3"></td>
-                            <td class="cripto_low3"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name4"></td>
-                            <td class="cripto_price4"></td>
-                            <td class="cripto_vol4"></td>
-                            <td class="cripto_high4"></td>
-                            <td class="cripto_low4"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name5"></td>
-                            <td class="cripto_price5"></td>
-                            <td class="cripto_vol5"></td>
-                            <td class="cripto_high5"></td>
-                            <td class="cripto_low5"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name6"></td>
-                            <td class="cripto_price6"></td>
-                            <td class="cripto_vol6"></td>
-                            <td class="cripto_high6"></td>
-                            <td class="cripto_low6"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name7"></td>
-                            <td class="cripto_price7"></td>
-                            <td class="cripto_vol7"></td>
-                            <td class="cripto_high7"></td>
-                            <td class="cripto_low7"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name8"></td>
-                            <td class="cripto_price8"></td>
-                            <td class="cripto_vol8"></td>
-                            <td class="cripto_high8"></td>
-                            <td class="cripto_low8"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name9"></td>
-                            <td class="cripto_price9"></td>
-                            <td class="cripto_vol9"></td>
-                            <td class="cripto_high9"></td>
-                            <td class="cripto_low9"></td>
-                        </tr>
-                        <tr>
-                            <td class="cripto_name10"></td>
-                            <td class="cripto_price10"></td>
-                            <td class="cripto_vol10"></td>
-                            <td class="cripto_high10"></td>
-                            <td class="cripto_low10"></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </>
-    )
-};
-
-
+// Componente Table optimizado con memo
+export const Table = memo(() => {
+  return (
+    <>
+      <h2 className="mt-5 mb-3">Cryptocurrencies</h2>
+      <div className="table-responsive mb-5">
+        <table className="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">Volume</th>
+              <th scope="col">24hr high Price</th>
+              <th scope="col">24hr low Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...Array(10)].map((_, i) => (
+              <tr key={i}>
+                <td className={`cripto_name${i + 1}`}></td>
+                <td className={`cripto_price${i + 1}`}></td>
+                <td className={`cripto_vol${i + 1}`}></td>
+                <td className={`cripto_high${i + 1}`}></td>
+                <td className={`cripto_low${i + 1}`}></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+});
 
 const symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'XRPUSDT', 'ADAUSDT', 'MATICUSDT', 'DOGEUSDT', 'SOLUSDT', 'LTCUSDT', 'DOTUSDT'];
 const names = ['Bitcoin', 'Ethereum', 'Binance Coin', 'Ripple', 'Cardano', 'Polygon', 'Dogecoin', 'Solana', 'Litecoin', 'Polkadot'];
 
-
-export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
+// Componente ApiTable optimizado
+export const ApiTable = memo(({ onSelectCrypto, setCurrentCryptoName }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cryptoData, setCryptoData] = useState([]);
+
+  const updateTableData = useCallback((data) => {
+    data.forEach((item, i) => {
+      const nameElement = document.querySelector(`.cripto_name${i + 1}`);
+      nameElement.textContent = names[i];
+
+      const buttonElement = document.createElement('button');
+      buttonElement.className = 'crypto-button';
+      buttonElement.textContent = names[i];
+
+      nameElement.innerHTML = '';
+      nameElement.appendChild(buttonElement);
+
+      buttonElement.dataset.cryptoIndex = i;
+      buttonElement.addEventListener('click', () => {
+        onSelectCrypto(i);
+        setCurrentCryptoName(names[i]);
+      });
+
+      document.querySelector(`.cripto_price${i + 1}`).textContent = parseFloat(item.lastPrice).toFixed(2);
+      document.querySelector(`.cripto_vol${i + 1}`).textContent = parseFloat(item.volume).toFixed(2);
+      document.querySelector(`.cripto_high${i + 1}`).textContent = parseFloat(item.highPrice).toFixed(2);
+      document.querySelector(`.cripto_low${i + 1}`).textContent = parseFloat(item.lowPrice).toFixed(2);
+    });
+  }, [onSelectCrypto, setCurrentCryptoName]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -280,32 +259,8 @@ export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
       setError(null);
       try {
         const data = await getMultipleTickers(symbols);
-        
-        data.forEach((item, i) => {
-          const nameElement = document.querySelector(`.cripto_name${i + 1}`);
-          nameElement.textContent = names[i];
-
-          const buttonElement = document.createElement('button');
-          buttonElement.className = 'crypto-button';
-          buttonElement.textContent = names[i];
-
-          nameElement.innerHTML = '';
-          nameElement.appendChild(buttonElement);
-
-          buttonElement.dataset.cryptoIndex = i;
-          buttonElement.addEventListener('click', (event) => {
-            const cryptoIndex = event.target.dataset.cryptoIndex;
-            const interval = "1M";
-            const limit = 100;
-            onSelectCrypto(cryptoIndex, interval, limit);
-            setCurrentCryptoName(names[cryptoIndex]);
-          });
-
-          document.querySelector(`.cripto_price${i + 1}`).textContent = parseFloat(item.lastPrice).toFixed(2);
-          document.querySelector(`.cripto_vol${i + 1}`).textContent = parseFloat(item.volume).toFixed(2);
-          document.querySelector(`.cripto_high${i + 1}`).textContent = parseFloat(item.highPrice).toFixed(2);
-          document.querySelector(`.cripto_low${i + 1}`).textContent = parseFloat(item.lowPrice).toFixed(2);
-        });
+        setCryptoData(data);
+        updateTableData(data);
       } catch (error) {
         setError(error.message);
         console.error('Error fetching ticker data:', error);
@@ -315,7 +270,7 @@ export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
     };
 
     fetchData();
-  }, []);
+  }, [updateTableData]);
 
   return (
     <div>
@@ -331,16 +286,6 @@ export const ApiTable = ({ onSelectCrypto, setCurrentCryptoName }) => {
           </div>
         </div>
       )}
-      {/* Render placeholders for the cryptocurrency data */}
-      {symbols.map((symbol, i) => (
-        <div key={i}>
-          <p className={`cripto_name${i + 1}`} />
-          <p className={`cripto_price${i + 1}`} />
-          <p className={`cripto_vol${i + 1}`} />
-          <p className={`cripto_high${i + 1}`} />
-          <p className={`cripto_low${i + 1}`} />
-        </div>
-      ))}
     </div>
   );
-};
+});
