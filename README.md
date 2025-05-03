@@ -1,16 +1,95 @@
-# BINANCE APP 
+# Crypto Tracker
 
-This app is designed with React js, Binance Api and Bootstrap to display information about different cryptocurrencies and their price history on a chart. Here is a description of the main functions present in the code:
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-blue)](https://josemanueloberreuter.github.io/Binance_API)
+[![React](https://img.shields.io/badge/React-18.2.0-61dafb)](https://reactjs.org/)
+[![Chart.js](https://img.shields.io/badge/Chart.js-4.3.3-ff6384)](https://www.chartjs.org/)
+[![Binance API](https://img.shields.io/badge/Binance-API-f0b90b)](https://binance-docs.github.io/apidocs/)
 
-1. SelectTime Component: This component represents a dropdown menu that allows users to select a time period for viewing data on the chart. The available periods are "This week," "This month," "This year," and "All time." When a user selects a period, a function is triggered to update the chart data with the appropriate interval and limit.
+A modern cryptocurrency tracking application built with React.js that provides real-time data and historical price charts for various cryptocurrencies using the Binance API.
 
-2. ChartComponent: This component is the core of the application, responsible for displaying the Bitcoin price chart. It uses the Chart.js library to generate a line chart that shows the price history. It also interacts with the Binance API to fetch historical price data for Bitcoin and updates the chart based on the selected time period.
+![App Screenshot](https://via.placeholder.com/800x400?text=Crypto+Tracker+Screenshot)
 
-3. Table Component: This component displays a table with basic information about the top 10 cryptocurrencies. It shows the names, prices, volumes, and 24-hour high/low prices for each cryptocurrency.
+## Features
 
-4. ApiTable Component: This component interacts with the Binance API to fetch real-time data for the top 10 cryptocurrencies. It uses the data to update the fields in the table that display real-time prices and information for each cryptocurrency. Additionally, each row in the table contains a button that allows users to select a specific cryptocurrency and update the chart with corresponding data.
+- **Real-time cryptocurrency data** from Binance API
+- **Interactive price charts** with customizable time periods
+- **Top 10 cryptocurrencies** table with key metrics
+- **Responsive design** for desktop and mobile devices
+- **Currency selection** to view different crypto assets
 
-In summary, this application combines React for the user interface, Chart.js for generating the historical price chart, and the Binance API for fetching real-time data about cryptocurrencies. The components work together to provide a user experience that allows users to visualize price history and obtain updated information about various cryptocurrencies.
+## Technologies
 
+- **Frontend**: React.js
+- **Charts**: Chart.js with react-chartjs-2
+- **API Calls**: Axios
+- **Styling**: Bootstrap
+- **Deployment**: GitHub Pages
 
-'[LINK TO MY WEB APP](https://josemanueloberreuter.github.io/Binance_API)'
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/Binance_API.git
+   cd Binance_API
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Usage
+
+- Use the time period selector to view different timeframes (week, month, year, all time)
+- Browse the table to see the top 10 cryptocurrencies
+- Click on any cryptocurrency in the table to view its detailed price chart
+- Monitor real-time price updates provided by the Binance API
+
+## Project Structure
+
+### Key Components
+
+1. **SelectTime Component**
+   - Dropdown menu for selecting time periods (week, month, year, all time)
+   - Triggers chart updates with appropriate interval and limit parameters
+
+2. **ChartComponent**
+   - Core visualization using Chart.js
+   - Displays historical price data as an interactive line chart
+   - Fetches and processes historical price data from Binance API
+
+3. **Table Component**
+   - Displays information about top cryptocurrencies
+   - Shows names, prices, volumes, and 24-hour price ranges
+
+4. **ApiTable Component**
+   - Interfaces with Binance API for real-time cryptocurrency data
+   - Updates table with live price information
+   - Provides buttons to select different cryptocurrencies for the chart view
+
+## Deployment
+
+The app is deployed using GitHub Pages. To deploy your own version:
+
+```bash
+npm run deploy
+```
+
+## Live Demo
+
+Visit the live application: [Crypto Tracker App](https://josemanueloberreuter.github.io/Binance_API)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Author
+
+[Your Name] - [Your Contact Information or GitHub Profile]
