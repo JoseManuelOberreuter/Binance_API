@@ -7,8 +7,6 @@
 
 A modern cryptocurrency tracking application built with React.js that provides real-time data and historical price charts for various cryptocurrencies using the Binance API.
 
-![App Screenshot](https://via.placeholder.com/800x400?text=Crypto+Tracker+Screenshot)
-
 ## Features
 
 - **Real-time cryptocurrency data** from Binance API
@@ -86,10 +84,4 @@ npm run deploy
 
 Visit the live application: [Crypto Tracker App](https://josemanueloberreuter.github.io/Binance_API)
 
-## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Author
-
-[Your Name] - [Your Contact Information or GitHub Profile]
