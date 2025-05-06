@@ -26,7 +26,19 @@ body {
 .App {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0.5rem;
+}
+
+@media (min-width: 576px) {
+  .App {
+    padding: 1rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .App {
+    padding: 2rem;
+  }
 }
 
 .chart-container {
@@ -115,7 +127,8 @@ select:focus {
 
 canvas {
   width: 100% !important;
-  height: 400px !important;
+  height: auto !important;
+  max-height: none !important;
 }
 
 /* Responsive Design */
@@ -136,6 +149,10 @@ canvas {
 
   .chart-header h2 {
     font-size: 1.25rem;
+  }
+
+  canvas {
+    height: 100% !important;
   }
 }
 

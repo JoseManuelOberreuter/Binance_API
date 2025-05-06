@@ -85,17 +85,38 @@ export const Calculator = memo(({ selectedCrypto: propSelectedCrypto }) => {
         .calculator-container {
           background: var(--card-background);
           border-radius: var(--border-radius);
-          padding: 2rem;
-          margin: 2rem 0;
+          padding: 1rem;
+          margin: 1rem 0;
           box-shadow: var(--box-shadow);
+        }
+
+        @media (min-width: 768px) {
+          .calculator-container {
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+          }
+        }
+
+        @media (min-width: 992px) {
+          .calculator-container {
+            padding: 2rem;
+            margin: 2rem 0;
+          }
         }
 
         .calculator-container h2 {
           color: var(--text-color);
-          font-size: 1.5rem;
-          margin-bottom: 2rem;
+          font-size: 1.2rem;
+          margin-bottom: 1.5rem;
           text-align: center;
           font-weight: 600;
+        }
+
+        @media (min-width: 768px) {
+          .calculator-container h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+          }
         }
 
         .calculator-form {
